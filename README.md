@@ -72,7 +72,7 @@ RemeoMedicalService es una aplicación web para administrar turnos de enfermeros
 
 ---
 
-## 👥 Usuarios de Prueba
+##  Usuarios de Prueba
 
 | Rol | Email | Contraseña | Acceso |
 |-----|-------|-----------|--------|
