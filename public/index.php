@@ -146,6 +146,54 @@ switch (true) {
         }
         break;
 
+    // --- REGLAS LABORALES ---
+    case strpos($path, '/reglas-laborales') === 0:
+        require_once dirname(__DIR__) . '/src/controllers/ReglaLaboralController.php';
+        $reglaController = new ReglaLaboralController($pdo);
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+
+        // Crear
+        if ($path === '/reglas-laborales/crear' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            require_once dirname(__DIR__) . '/src/views/reglasLaborales/create.php';
+            break;
+        }
+        if ($path === '/reglas-laborales/crear' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $reglaController->store($_POST);
+            header('Location: /reglas-laborales?success=1');
+            exit;
+        }
+
+        // Editar
+        if ($path === '/reglas-laborales/editar' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            $regla = $reglaController->getById($id);
+            require_once dirname(__DIR__) . '/src/views/reglasLaborales/edit.php';
+            break;
+        }
+        if ($path === '/reglas-laborales/editar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $reglaController->update($id, $_POST);
+            header('Location: /reglas-laborales?updated=1');
+            exit;
+        }
+
+        // Desactivar
+        if ($path === '/reglas-laborales/desactivar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $reglaController->deactivate($_POST['id']);
+            header('Location: /reglas-laborales?deactivated=1');
+            exit;
+        }
+
+        // Activar
+        if ($path === '/reglas-laborales/activar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $reglaController->activate($_POST['id']);
+            header('Location: /reglas-laborales?activated=1');
+            exit;
+        }
+
+        // Listado
+        $reglas = $reglaController->index();
+        require_once dirname(__DIR__) . '/src/views/reglasLaborales/list.php';
+        break;
+
     // Error 404
     default:
         http_response_code(404);
@@ -155,3 +203,4 @@ switch (true) {
         require_once dirname(__DIR__) . '/src/views/layouts/footer.php';
         break;
 }
+
