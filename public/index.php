@@ -38,9 +38,67 @@ if (!Auth::isAuthenticated() && !in_array($path, $publicRoutes, true)) {
     header('Location: /login');
     exit;
 }
-
-// Ruteo
+// Ruteo ADMIN
 switch (true) {
+    // Gestión de usuarios (solo admin)
+    case $path === '/usuarios' || $path === '/usuarios/':
+        //Verifica que esté logeado y que sea admin
+        if (Auth::isAuthenticated() && Auth::hasRole('administrador')) {
+            require_once dirname(__DIR__) . '/src/controllers/UserController.php';
+            $userController = new UserController($pdo);
+            $usuarios = $userController->index();
+            require_once dirname(__DIR__) . '/src/views/usuarios/usuarios.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+
+    // Formulario de crear usuario 
+    case ($path === '/usuario/crear' || $path === '/usuarios/crear') && $_SERVER['REQUEST_METHOD'] === 'GET':
+        require_once dirname(__DIR__) . '/src/views/usuarios/create.php';
+        break;
+
+    // Crear usuario 
+    case ($path === '/usuario/crear' || $path === '/usuarios/crear') && $_SERVER['REQUEST_METHOD'] === 'POST':
+        require_once dirname(__DIR__) . '/src/controllers/UserController.php';
+        $userController = new UserController($pdo);
+        $result = $userController->store($_POST);
+        if ($result === 'duplicate') {
+            header('Location: /usuarios?error=email');
+            exit;
+        }
+        // Redirige con mensaje de éxito
+        header('Location: /usuarios?success=1');
+        exit;
+
+    // --- EDICIÓN DE USUARIO ---
+    case strpos($path, '/usuario/editar') !== false:
+        require_once dirname(__DIR__) . '/src/controllers/UserController.php';
+        $userController = new UserController($pdo);
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Guardar cambios
+            $userController->update($id, $_POST);
+            header('Location: /usuarios?updated=1');
+            exit;
+        } else {
+            // Mostrar formulario
+            $usuario = $userController->find($id);
+            require_once dirname(__DIR__) . '/src/views/usuarios/edit.php';
+        }
+        break;
+
+    // Eliminar usuario
+    case $path === '/usuario/eliminar' && $_SERVER['REQUEST_METHOD'] === 'POST':
+        require_once dirname(__DIR__) . '/src/controllers/UserController.php';
+        $userController = new UserController($pdo);
+        $userController->delete($_POST['id'] ?? null);
+        header('Location: /usuarios');
+        exit;
     // Rutas de autenticación
     case $path === '/login':
         require_once dirname(__DIR__) . '/src/views/auth/login.php';
