@@ -38,6 +38,16 @@ if (!Auth::isAuthenticated() && !in_array($path, $publicRoutes, true)) {
     header('Location: /login');
     exit;
 }
+
+// NOTE: Reutilizamos la conexión creada arriba. Evitamos volver a llamar a
+// `require_once` sobre el mismo archivo porque `require_once` devuelve `true`
+// en llamadas posteriores, lo que causaba warnings al acceder offsets de array
+// sobre un booleano. El objeto `$pdo` ya está disponible.
+
+require_once dirname(__DIR__) . '/src/controllers/TurnoController.php';
+require_once dirname(__DIR__) . '/src/models/User.php';
+require_once dirname(__DIR__) . '/src/models/Domicilio.php';
+
 // Ruteo ADMIN
 switch (true) {
     // Gestión de usuarios (solo admin)
@@ -129,7 +139,93 @@ switch (true) {
     // Turnos
     case $path === '/turnos':
         if (Auth::isAuthenticated() && Auth::hasAnyRole(['coordinador', 'administrador'])) {
+            $turnoController = new TurnoController($pdo);
+            $turnos = $turnoController->index();
             require_once dirname(__DIR__) . '/src/views/turno/list.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+    case $path === '/turnos/crear':
+        if (Auth::isAuthenticated() && Auth::hasRole('coordinador')) {
+            $turnoController = new TurnoController($pdo);
+            $enfermeros = $turnoController->getNurses();
+            $domicilios = $turnoController->getDomicilios();
+            $errors = [];
+            $old = ['estado' => 'Pendiente'];
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $errors = $turnoController->validate($_POST);
+
+                if (empty($errors)) {
+                    $turnoController->store($_POST, Auth::getCurrentUser()['id']);
+                    header('Location: /turnos?created=1');
+                    exit;
+                }
+
+                $old = $_POST;
+            }
+
+            require_once dirname(__DIR__) . '/src/views/turno/create.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+    case strpos($path, '/turnos/editar') === 0:
+        if (Auth::isAuthenticated() && Auth::hasRole('coordinador')) {
+            $turnoController = new TurnoController($pdo);
+            $enfermeros = $turnoController->getNurses();
+            $domicilios = $turnoController->getDomicilios();
+            $id = $_GET['id'] ?? $_POST['id'] ?? null;
+
+            if (!$id || !ctype_digit((string)$id)) {
+                http_response_code(404);
+                echo '<h1>Turno no encontrado</h1>';
+                exit;
+            }
+
+            $turno = $turnoController->find((int)$id);
+
+            if (!$turno) {
+                http_response_code(404);
+                echo '<h1>Turno no encontrado</h1>';
+                exit;
+            }
+
+            $errors = [];
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $errors = $turnoController->validate($_POST);
+
+                if (empty($errors)) {
+                    $turnoController->update((int)$id, $_POST);
+                    header('Location: /turnos?updated=1');
+                    exit;
+                }
+
+                $turno = array_merge($turno, $_POST);
+            }
+
+            require_once dirname(__DIR__) . '/src/views/turno/edit.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+    case $path === '/turnos/eliminar' && $_SERVER['REQUEST_METHOD'] === 'POST':
+        if (Auth::isAuthenticated() && Auth::hasRole('coordinador')) {
+            $turnoController = new TurnoController($pdo);
+            $turnoController->delete($_POST['id'] ?? null);
+            header('Location: /turnos?deleted=1');
+            exit;
         } else {
             http_response_code(403);
             echo '<h1>Acceso denegado</h1>';

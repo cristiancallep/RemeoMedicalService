@@ -185,13 +185,13 @@ a.btn, .btn {
     background-color: #0056b3;
 }
 
-.btn-success, a[style*="background-color: #28a745"] {
-    background-color: #28a745;
+.btn-secondary {
+    background-color: #6c757d;
     color: white;
 }
 
-.btn-success:hover, a[style*="background-color: #28a745"]:hover {
-    background-color: #218838;
+.btn-secondary:hover {
+    background-color: #5a6268;
 }
 
 .btn-danger, a[style*="background-color: #dc3545"] {
