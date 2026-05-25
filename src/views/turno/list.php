@@ -3,7 +3,7 @@
 <section>
     <!-- MOD: Añadido título y descripción para la vista de listados -->
     <div style="margin-bottom:18px;">
-    <a href="javascript:history.back()" class="btn btn-secondary" style="margin-bottom:12px; display:inline-block;">&#8592; Volver</a>
+    <a href="/dashboard" class="btn btn-secondary" style="margin-bottom:12px; display:inline-block;">&#8592; Volver</a>
     <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
         <div>
             <h2>Listado de turnos</h2>

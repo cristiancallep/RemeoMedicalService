@@ -6,7 +6,7 @@
             <h2>Crear turno</h2>
             <p>Registra un turno nuevo y asigna manualmente un enfermero si está disponible.</p>
         </div>
-        <a href="/turnos" class="btn btn-secondary">Volver</a>
+        <a href="/dashboard" class="btn btn-secondary">Volver</a>
     </div>
 
     <?php if (!empty($errors)): ?>
