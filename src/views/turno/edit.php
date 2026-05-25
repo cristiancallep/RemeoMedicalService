@@ -6,7 +6,7 @@
             <h2>Editar turno</h2>
             <p>Actualiza los datos del turno y asigna manualmente un enfermero si lo deseas.</p>
         </div>
-        <a href="/turnos" class="btn btn-secondary">Volver</a>
+        <a href="/dashboard" class="btn btn-secondary">Volver</a>
     </div>
 
     <?php if (!empty($errors)): ?>
