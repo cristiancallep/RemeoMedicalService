@@ -2,16 +2,13 @@
 
 <section>
     <!-- MOD: Añadido título y descripción para la vista de listados -->
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+    <div style="margin-bottom:18px;">
+    <a href="javascript:history.back()" class="btn btn-secondary" style="margin-bottom:12px; display:inline-block;">&#8592; Volver</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
         <div>
             <h2>Listado de turnos</h2>
             <p>Gestiona los turnos y asigna enfermeros manualmente desde el coordinador.</p>
         </div>
-        <!-- MOD: Botón Crear visible solo para el rol coordinador -->
-        <?php if (Auth::hasRole('coordinador')): ?>
-            <a href="/turnos/crear" class="btn btn-primary">+ Crear turno</a>
-        <?php endif; ?>
-    </div>
 
     <!-- MOD: Mensajes flash mediante parámetros GET (created/updated/deleted) -->
     <?php if (isset($_GET['created'])): ?>

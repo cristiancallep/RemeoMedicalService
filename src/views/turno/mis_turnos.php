@@ -99,6 +99,39 @@ require_once dirname(__DIR__) . '/layouts/header.php';
 
     .page-header {
         margin-bottom: 28px;
+        .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.btn-back:hover {
+    background: var(--border);
+    color: var(--text);
+}
+
+.btn-back svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
     }
 
     .page-title {
@@ -428,8 +461,12 @@ require_once dirname(__DIR__) . '/layouts/header.php';
 <div class="turnos-page">
 
     <div class="page-header">
-        <h2 class="page-title">Mis turnos</h2>
-        <p class="page-subtitle">Visualización de tus turnos asignados</p>
+    <a href="javascript:history.back()" class="btn-back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Volver
+    </a>
+    <h2 class="page-title">Mis turnos</h2>
+    <p class="page-subtitle">Visualización de tus turnos asignados</p>
     </div>
 
     <!-- Tarjetas de resumen -->
