@@ -17,15 +17,15 @@ class ReglaLaboral extends Model
     }
 
     // Obtener todas las reglas laborales
-    public function getAll($table = 'reglas_laborales') {
-        $stmt = $this->pdo->prepare("SELECT * FROM $table ORDER BY id");
+    public function getAll() {
+        $stmt = $this->pdo->prepare("SELECT * FROM reglas_laborales ORDER BY id");
         $stmt->execute();
         return $stmt->fetchAll();
     }
 
     // Crear nueva regla laboral
-    public function create($table, array $data) {
-        $stmt = $this->pdo->prepare("INSERT INTO $table (horas_maximas, descanso_minimo, activo) VALUES (:horas_maximas, :descanso_minimo, 1)");
+    public function create(array $data) {
+        $stmt = $this->pdo->prepare("INSERT INTO reglas_laborales (horas_maximas, descanso_minimo, activo) VALUES (:horas_maximas, :descanso_minimo, 1)");
         return $stmt->execute([
             'horas_maximas' => $data['horas_maximas'],
             'descanso_minimo' => $data['descanso_minimo']
@@ -33,15 +33,15 @@ class ReglaLaboral extends Model
     }
 
     // Buscar regla laboral por ID
-    public function getById($table, $id) {
-        $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE id = :id");
+    public function getById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM reglas_laborales WHERE id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
     }
 
     // Actualizar regla laboral
-    public function update($table, $id, array $data) {
-        $stmt = $this->pdo->prepare("UPDATE $table SET horas_maximas = :horas_maximas, descanso_minimo = :descanso_minimo WHERE id = :id");
+    public function update($id, array $data) {
+        $stmt = $this->pdo->prepare("UPDATE reglas_laborales SET horas_maximas = :horas_maximas, descanso_minimo = :descanso_minimo WHERE id = :id");
         return $stmt->execute([
             'horas_maximas' => $data['horas_maximas'],
             'descanso_minimo' => $data['descanso_minimo'],
@@ -50,8 +50,8 @@ class ReglaLaboral extends Model
     }
 
     // Eliminar regla laboral (opcional, si se quiere eliminar físicamente)
-    public function delete($table, $id) {
-        $stmt = $this->pdo->prepare("DELETE FROM $table WHERE id = :id");
+    public function delete($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM reglas_laborales WHERE id = :id");
         return $stmt->execute(['id' => $id]);
     }
 

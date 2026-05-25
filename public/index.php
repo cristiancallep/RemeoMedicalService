@@ -33,11 +33,39 @@ $path = '/' . trim(substr($path, strlen($basePath)), '/');
 // Rutas públicas (sin autenticación)
 $publicRoutes = ['/login', '/logout'];
 
+// Rutas que requieren rol de "administrador"
+$adminRoutes = ['/usuarios', '/usuario', '/reglas-laborales',];
+
+// Verificar si la ruta actual está en las rutas de administrador
+$isAdminRoute = false;
+foreach ($adminRoutes as $adminRoute) {
+    if (strpos($path, $adminRoute) === 0) {
+        $isAdminRoute = true;
+        break;
+    }
+}
+
+if ($isAdminRoute && !Auth::hasRole('administrador')) {
+    http_response_code(403);
+    echo '<h1>403 - Acceso denegado</h1><p>No tienes permiso para acceder a esta página.</p>';
+    exit;
+}
+
 // Si no está autenticado y la ruta no es pública, redirige a login
 if (!Auth::isAuthenticated() && !in_array($path, $publicRoutes, true)) {
     header('Location: /login');
     exit;
 }
+
+// NOTE: Reutilizamos la conexión creada arriba. Evitamos volver a llamar a
+// `require_once` sobre el mismo archivo porque `require_once` devuelve `true`
+// en llamadas posteriores, lo que causaba warnings al acceder offsets de array
+// sobre un booleano. El objeto `$pdo` ya está disponible.
+
+require_once dirname(__DIR__) . '/src/controllers/TurnoController.php';
+require_once dirname(__DIR__) . '/src/models/User.php';
+require_once dirname(__DIR__) . '/src/models/Domicilio.php';
+
 // Ruteo ADMIN
 switch (true) {
     // Gestión de usuarios (solo admin)
@@ -47,7 +75,7 @@ switch (true) {
             require_once dirname(__DIR__) . '/src/controllers/UserController.php';
             $userController = new UserController($pdo);
             $usuarios = $userController->index();
-            require_once dirname(__DIR__) . '/src/views/usuarios/usuarios.php';
+            require_once dirname(__DIR__) . '/src/views/usuarios/list.php';
         } else {
             http_response_code(403);
             echo '<h1>Acceso denegado</h1>';
@@ -56,8 +84,10 @@ switch (true) {
         break;
 
 
+
     // Formulario de crear usuario 
     case ($path === '/usuario/crear' || $path === '/usuarios/crear') && $_SERVER['REQUEST_METHOD'] === 'GET':
+        $errors = [];
         require_once dirname(__DIR__) . '/src/views/usuarios/create.php';
         break;
 
@@ -65,28 +95,33 @@ switch (true) {
     case ($path === '/usuario/crear' || $path === '/usuarios/crear') && $_SERVER['REQUEST_METHOD'] === 'POST':
         require_once dirname(__DIR__) . '/src/controllers/UserController.php';
         $userController = new UserController($pdo);
-        $result = $userController->store($_POST);
-        if ($result === 'duplicate') {
-            header('Location: /usuarios?error=email');
-            exit;
+        $errors = $userController->store($_POST);
+        if ($errors) {
+            require_once dirname(__DIR__) . '/src/views/usuarios/create.php';
+            break;
         }
         // Redirige con mensaje de éxito
         header('Location: /usuarios?success=1');
         exit;
 
     // --- EDICIÓN DE USUARIO ---
+
     case strpos($path, '/usuario/editar') !== false:
         require_once dirname(__DIR__) . '/src/controllers/UserController.php';
         $userController = new UserController($pdo);
         $id = $_GET['id'] ?? $_POST['id'] ?? null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Guardar cambios
-            $userController->update($id, $_POST);
+            $errors = $userController->update($id, $_POST);
+            if ($errors) {
+                $usuario = $userController->find($id);
+                require_once dirname(__DIR__) . '/src/views/usuarios/edit.php';
+                break;
+            }
             header('Location: /usuarios?updated=1');
             exit;
         } else {
-            // Mostrar formulario
+            $errors = [];
             $usuario = $userController->find($id);
             require_once dirname(__DIR__) . '/src/views/usuarios/edit.php';
         }
@@ -97,7 +132,7 @@ switch (true) {
         require_once dirname(__DIR__) . '/src/controllers/UserController.php';
         $userController = new UserController($pdo);
         $userController->delete($_POST['id'] ?? null);
-        header('Location: /usuarios');
+        header('Location: /usuarios?deleted=1');
         exit;
     // Rutas de autenticación
     case $path === '/login':
@@ -129,7 +164,93 @@ switch (true) {
     // Turnos
     case $path === '/turnos':
         if (Auth::isAuthenticated() && Auth::hasAnyRole(['coordinador', 'administrador'])) {
+            $turnoController = new TurnoController($pdo);
+            $turnos = $turnoController->index();
             require_once dirname(__DIR__) . '/src/views/turno/list.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+    case $path === '/turnos/crear':
+        if (Auth::isAuthenticated() && Auth::hasRole('coordinador')) {
+            $turnoController = new TurnoController($pdo);
+            $enfermeros = $turnoController->getNurses();
+            $domicilios = $turnoController->getDomicilios();
+            $errors = [];
+            $old = ['estado' => 'Pendiente'];
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $errors = $turnoController->validate($_POST);
+
+                if (empty($errors)) {
+                    $turnoController->store($_POST, Auth::getCurrentUser()['id']);
+                    header('Location: /turnos?created=1');
+                    exit;
+                }
+
+                $old = $_POST;
+            }
+
+            require_once dirname(__DIR__) . '/src/views/turno/create.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+    case strpos($path, '/turnos/editar') === 0:
+        if (Auth::isAuthenticated() && Auth::hasRole('coordinador')) {
+            $turnoController = new TurnoController($pdo);
+            $enfermeros = $turnoController->getNurses();
+            $domicilios = $turnoController->getDomicilios();
+            $id = $_GET['id'] ?? $_POST['id'] ?? null;
+
+            if (!$id || !ctype_digit((string)$id)) {
+                http_response_code(404);
+                echo '<h1>Turno no encontrado</h1>';
+                exit;
+            }
+
+            $turno = $turnoController->find((int)$id);
+
+            if (!$turno) {
+                http_response_code(404);
+                echo '<h1>Turno no encontrado</h1>';
+                exit;
+            }
+
+            $errors = [];
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $errors = $turnoController->validate($_POST);
+
+                if (empty($errors)) {
+                    $turnoController->update((int)$id, $_POST);
+                    header('Location: /turnos?updated=1');
+                    exit;
+                }
+
+                $turno = array_merge($turno, $_POST);
+            }
+
+            require_once dirname(__DIR__) . '/src/views/turno/edit.php';
+        } else {
+            http_response_code(403);
+            echo '<h1>Acceso denegado</h1>';
+            echo '<p>No tienes permisos para acceder a esta página.</p>';
+        }
+        break;
+
+    case $path === '/turnos/eliminar' && $_SERVER['REQUEST_METHOD'] === 'POST':
+        if (Auth::isAuthenticated() && Auth::hasRole('coordinador')) {
+            $turnoController = new TurnoController($pdo);
+            $turnoController->delete($_POST['id'] ?? null);
+            header('Location: /turnos?deleted=1');
+            exit;
         } else {
             http_response_code(403);
             echo '<h1>Acceso denegado</h1>';
@@ -146,6 +267,7 @@ switch (true) {
         }
         break;
 
+
     // --- REGLAS LABORALES ---
     case strpos($path, '/reglas-laborales') === 0:
         require_once dirname(__DIR__) . '/src/controllers/ReglaLaboralController.php';
@@ -154,23 +276,34 @@ switch (true) {
 
         // Crear
         if ($path === '/reglas-laborales/crear' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            $errors = [];
             require_once dirname(__DIR__) . '/src/views/reglasLaborales/create.php';
             break;
         }
         if ($path === '/reglas-laborales/crear' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $reglaController->store($_POST);
+            $errors = $reglaController->store($_POST);
+            if ($errors) {
+                require_once dirname(__DIR__) . '/src/views/reglasLaborales/create.php';
+                break;
+            }
             header('Location: /reglas-laborales?success=1');
             exit;
         }
 
         // Editar
         if ($path === '/reglas-laborales/editar' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            $errors = [];
             $regla = $reglaController->getById($id);
             require_once dirname(__DIR__) . '/src/views/reglasLaborales/edit.php';
             break;
         }
         if ($path === '/reglas-laborales/editar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $reglaController->update($id, $_POST);
+            $errors = $reglaController->update($id, $_POST);
+            $regla = $reglaController->getById($id);
+            if ($errors) {
+                require_once dirname(__DIR__) . '/src/views/reglasLaborales/edit.php';
+                break;
+            }
             header('Location: /reglas-laborales?updated=1');
             exit;
         }

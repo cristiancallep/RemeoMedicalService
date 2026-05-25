@@ -1,31 +1,47 @@
+
+
 <?php require_once dirname(__DIR__) . '/layouts/header.php'; ?>
 
-<section style="max-width: 480px; margin: 32px auto 48px auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); padding: 36px 32px; font-family: 'Segoe UI', Arial, sans-serif;">
+<?php if (!empty($errors)): ?>
+    <div class="alert alert-danger">
+        <ul>
+            <?php foreach ($errors as $error): ?>
+                <li><?= htmlspecialchars($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
+<section class="form-card">
+    <div style="margin-bottom: 18px;">
+        <a href="/usuarios" class="btn btn-secondary">Volver</a>
+    </div>
     <?php if (isset($_GET['success']) && $_GET['success'] === '1'): ?>
-        <div style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; padding: 10px 15px; margin-bottom: 18px; text-align:center; font-size: 1rem;">Usuario creado correctamente.</div>
+        <div class="alert alert-success text-center">Usuario creado correctamente.</div>
     <?php endif; ?>
-    <form method="post" action="/usuario/crear" autocomplete="off" style="display: flex; flex-direction: column; gap: 18px;">
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-            <label for="nombre" style="font-weight: 500; color: #333;">Nombre</label>
-            <input type="text" id="nombre" name="nombre" required autocomplete="off" style="padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; font-size: 1.08rem; background: #f8fafc; transition: border 0.2s;">
+    <form method="post" action="/usuario/crear" autocomplete="off" class="form-vertical">
+        <div class="form-group">
+            <label for="nombre" class="label">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required autocomplete="off" class="input">
         </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-            <label for="email" style="font-weight: 500; color: #333;">Email</label>
-            <input type="email" id="email" name="email" required autocomplete="off" style="padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; font-size: 1.08rem; background: #f8fafc; transition: border 0.2s;">
+        <div class="form-group">
+            <label for="email" class="label">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="off" class="input">
         </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-            <label for="rol" style="font-weight: 500; color: #333;">Rol</label>
-            <select id="rol" name="rol" required style="padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; font-size: 1.08rem; background: #f8fafc;">
+        <div class="form-group">
+            <label for="rol" class="label">Rol</label>
+            <select id="rol" name="rol" required class="input">
                 <option value="enfermero">Enfermero</option>
                 <option value="coordinador">Coordinador</option>
                 <option value="administrador">Administrador</option>
             </select>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-            <label for="password" style="font-weight: 500; color: #333;">Contraseña</label>
-            <input type="password" id="password" name="password" required autocomplete="new-password" style="padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; font-size: 1.08rem; background: #f8fafc; transition: border 0.2s;">
+        <div class="form-group">
+            <label for="password" class="label">Contraseña</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password" class="input">
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px; background-color:#005b96; color:white; font-size:1.25rem; font-weight:700; border:none; border-radius:8px; padding:14px 0; transition:background 0.2s; box-shadow:0 2px 8px rgba(0,91,150,0.08); letter-spacing:0.5px;">Guardar</button>
+        <button type="submit" class="btn btn-primary btn-block">Guardar</button>
     </form>
 </section>
+
 <?php require_once dirname(__DIR__) . '/layouts/footer.php'; ?>

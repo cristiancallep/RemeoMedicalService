@@ -20,14 +20,17 @@ class UserController
     }
 
     // Guardar nuevo usuario
-    public function store(array $data): string
+    public function store(array $data): array
     {
-        // Validar email único
-        if ($this->userModel->findByEmail($data['email'])) {
-            return 'duplicate';
-        }
+        $errors = [];
+        if (empty($data['nombre'])) $errors[] = 'El nombre es obligatorio.';
+        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Email inválido.';
+        if (empty($data['rol'])) $errors[] = 'El rol es obligatorio.';
+        if (empty($data['password']) || strlen($data['password']) < 6) $errors[] = 'La contraseña debe tener al menos 6 caracteres.';
+        if ($this->userModel->findByEmail($data['email'])) $errors[] = 'El email ya está registrado.';
+        if ($errors) return $errors;
         $this->userModel->create($data);
-        return 'success';
+        return [];
     }
 
     // Buscar usuario por ID
@@ -37,9 +40,15 @@ class UserController
     }
 
     // Actualizar usuario
-    public function update($id, array $data): void
+    public function update($id, array $data): array
     {
+        $errors = [];
+        if (empty($data['nombre'])) $errors[] = 'El nombre es obligatorio.';
+        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Email inválido.';
+        if (empty($data['rol'])) $errors[] = 'El rol es obligatorio.';
+        if ($errors) return $errors;
         $this->userModel->update($id, $data);
+        return [];
     }
 
     // Eliminar usuario

@@ -84,6 +84,6 @@ class Auth
             'enfermero' => 'Enfermero',
         ];
 
-        return $roles[$rol] ?? 'Usuario';
+        return $roles[$rol] ?? 'Usuario';    
     }
 }
