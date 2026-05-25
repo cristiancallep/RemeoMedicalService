@@ -1,3 +1,191 @@
+.btn-secondary {
+    background: #e0e7ef;
+    color: #005b96;
+    border: 1px solid #b0c4d9;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 24px;
+    border-radius: 6px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: 8px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    display: inline-block;
+}
+.btn-secondary {
+    background: #e0e7ef;
+    color: #005b96;
+    border: 1px solid #b0c4d9;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 24px;
+    border-radius: 6px;
+    margin-top: 8px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-secondary:hover {
+    background: #c9d6e3;
+    color: #003d66;
+}
+/* --- Formularios y campos --- */
+.form-card {
+    max-width: 480px;
+    margin: 32px auto 48px auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    padding: 36px 32px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.label {
+    font-weight: 500;
+    color: #333;
+}
+.input {
+    padding: 12px;
+    border: 1px solid #cfd8dc;
+    border-radius: 8px;
+    font-size: 1.08rem;
+    background: #f8fafc;
+    transition: border 0.2s;
+}
+.btn-block {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 14px 0;
+    box-shadow: 0 2px 8px rgba(0,91,150,0.08);
+    letter-spacing: 0.5px;
+}
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+/* --- Reglas Laborales y Usuarios --- */
+.card-list {
+    max-width: 980px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.card-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.title-blue {
+    color: #005b96;
+    margin: 0;
+}
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+.btn-edit {
+    background: #005b96;
+    color: white;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-right: 4px;
+}
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-right: 4px;
+}
+.btn-warning {
+    background: #f9e7ab;
+    color: #856404;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+.table-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-list th, .table-list td {
+    padding: 12px;
+    text-align: left;
+}
+.table-list th {
+    background: #f8f9fa;
+    color: #005b96;
+}
+.table-list tr {
+    border-bottom: 1px solid #eee;
+}
+.text-center {
+    text-align: center;
+}
+.capitalize {
+    text-transform: capitalize;
+}
+.text-success {
+    color: #28a745;
+}
+.text-muted {
+    color: #888;
+}
+.fw-bold {
+    font-weight: 600;
+}
+.actions-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+.form-inline {
+    display: inline;
+    margin: 0;
+}
 * {
     box-sizing: border-box;
 }
