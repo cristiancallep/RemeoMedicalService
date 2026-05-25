@@ -195,7 +195,7 @@ RemeoMedicalService/
 
  **Gestión de Turnos (Lectura)**
 - Listado de turnos (coordinador/admin)
-- Mis turnos asignados (enfermero)
+- Mis turnos asignados con un calendario interactivo para enfermero(enfermero)
 - Visualización con estados
 
  **Base de Datos**
